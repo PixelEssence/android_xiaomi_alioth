@@ -44,6 +44,11 @@ PRODUCT_PACKAGES += \
     LineageSystemUIOverlayDevice \
     SystemUIOverlayDevice
 
+# RRO Overlays
+PRODUCT_PACKAGES += \
+    SettingsOverlayM2012K11AG \
+    SettingsOverlayM2012K11AI
+
 # Shipping API level
 PRODUCT_SHIPPING_API_LEVEL := 30
 
