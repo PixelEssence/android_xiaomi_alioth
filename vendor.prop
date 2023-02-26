@@ -48,3 +48,6 @@ persist.sys.sf.native_mode=258
 # Fingerprint
 persist.vendor.fingerprint.sensor_location=1080|965|115|local:4630946736638489729
 persist.vendor.fingerprint.type=side
+
+# TouchFeature
+ro.vendor.touchfeature.type=43
