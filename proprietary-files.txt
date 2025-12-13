@@ -369,7 +369,6 @@ vendor/etc/init/init.batterysecret.rc
 product/etc/displayconfig/display_id_4630946736638489729.xml:vendor/etc/displayconfig/display_id_4630946736638489729.xml
 vendor/etc/qdcm_calib_data_xiaomi_38_08_0a_cmd_mode_dsc_dsi_panel.xml
 vendor/etc/ltm_config_xiaomi_38_08_0a_cmd_mode_dsc_dsi_panel.xml
-product/etc/displayconfig/display_id_4630946736638489729.xml:vendor/etc/displayconfig/display_id_4630946736638489729.xml
 
 # Fingerprint
 vendor/lib64/hw/fingerprint.fpc.so:vendor/lib64/hw/fingerprint.fpc.default.so;FIX_SONAME
