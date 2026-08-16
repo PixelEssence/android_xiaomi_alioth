@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+
+    <string-array name="config_color_mode_options_strings" translatable="false">
+        <item>生动</item>
+        <item>鲜艳</item>
+        <item>原色</item>
+        <item>高级 - 鲜艳</item>
+        <item>高级 - 原色</item>
+        <item>高级 - P3</item>
+        <item>高级 - sRGB</item>
+    </string-array>
+
+</resources>
