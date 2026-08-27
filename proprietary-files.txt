@@ -369,6 +369,26 @@ vendor/etc/init/init.batterysecret.rc
 product/etc/displayconfig/display_id_4630946736638489729.xml:vendor/etc/displayconfig/display_id_4630946736638489729.xml
 vendor/etc/qdcm_calib_data_xiaomi_38_08_0a_cmd_mode_dsc_dsi_panel.xml
 vendor/etc/ltm_config_xiaomi_38_08_0a_cmd_mode_dsc_dsi_panel.xml
+vendor/etc/mdss_dsi_k11a_38_08_0a_dsc_cmd_mi.xml
+
+# Display-calibration displayfeature
+vendor/etc/tunings.txt
+vendor/etc/miLut_0.txt
+vendor/etc/miLut_1.txt
+vendor/etc/miLut_2.txt
+vendor/etc/miLut_3.txt
+vendor/etc/miLut_4.txt
+vendor/etc/miLut_5.txt
+vendor/etc/miLut_6.txt
+vendor/etc/miLut_7.txt
+vendor/etc/miLut_8.txt
+vendor/etc/miLut_9.txt
+vendor/etc/miLut_10.txt
+vendor/etc/miLut_11.txt
+vendor/etc/miLut_12.txt
+vendor/etc/miLut_13.txt
+vendor/etc/miLut_14.txt
+vendor/etc/miLutInfo.txt
 
 # Fingerprint
 vendor/lib64/hw/fingerprint.fpc.so:vendor/lib64/hw/fingerprint.fpc.default.so;FIX_SONAME
