@@ -26,50 +26,6 @@
         <item>267</item> <!-- expert_srgb -->
     </integer-array>
 
-    <!-- Mapping for default ColorDisplayManager.COLOR_MODE_xxx to other color modes, if
-    if applicable. By default, all map to the same value. -->
-    <integer-array name="config_mappedColorModes">
-        <item>257</item> <!-- COLOR_MODE_NATURAL -->
-        <item>256</item> <!-- COLOR_MODE_BOOSTED -->
-        <item>256</item> <!-- COLOR_MODE_SATURATED -->
-        <item>258</item> <!-- COLOR_MODE_AUTOMATIC -->
-    </integer-array>
-
-    <!-- Color mode to use when accessibility transforms are enabled. This color mode must be
-    supported by the device, but not necessarily appear in config_availableColorModes. The
-    regularly selected color mode will be used if this value is negative. -->
-    <integer name="config_accessibilityColorMode">257</integer>
-
-    <!-- The following two arrays specify which color space to use for display composition when a
-    certain color mode is active.
-    Composition color spaces are defined in android.view.Display.COLOR_MODE_xxx, and color
-    modes are defined in ColorDisplayManager.COLOR_MODE_xxx and
-    ColorDisplayManager.VENDOR_COLOR_MODE_xxx.
-    The color space COLOR_MODE_DEFAULT (0) lets the system select the most appropriate
-    composition color space for currently displayed content. Other values (e.g.,
-    COLOR_MODE_SRGB) override system selection; these other color spaces must be supported by
-    the device for for display composition.
-    If a color mode does not have a corresponding color space specified in this array, the
-    currently set composition color space will not be modified.-->
-    <integer-array name="config_displayCompositionColorModes">
-        <item>258</item> <!-- vivid -->
-        <item>256</item> <!-- Saturated -->
-        <item>257</item> <!-- Original -->
-        <item>266</item> <!-- expert-Saturated -->
-        <item>269</item> <!-- expert-Original -->
-        <item>268</item> <!-- expert-P3 -->
-        <item>267</item> <!-- expert-sRGB -->
-    </integer-array>
-    <integer-array name="config_displayCompositionColorSpaces">
-        <item>0</item> <!-- COLOR_MODE_DEFAULT -->
-        <item>0</item> <!-- COLOR_MODE_DEFAULT -->
-        <item>7</item> <!-- COLOR_MODE_SRGB -->
-        <item>0</item> <!-- COLOR_MODE_DEFAULT -->
-        <item>7</item> <!-- COLOR_MODE_SRGB -->
-        <item>9</item> <!-- COLOR_MODE_DISPLAY_P3 -->
-        <item>7</item> <!-- COLOR_MODE_SRGB -->
-    </integer-array>
-
      <!-- Flag indicating whether the we should enable the automatic brightness in Settings.
          Software implementation will be used if config_hardware_auto_brightness_available is not set -->
      <bool name="config_automatic_brightness_available">true</bool>
