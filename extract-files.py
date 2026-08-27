@@ -26,6 +26,8 @@ blob_fixups: blob_fixups_user_type = {
     ): blob_fixup().call(fixup_aw8697_waveform, need_tmp_dir=False),
     'vendor/etc/init/init.batterysecret.rc': blob_fixup()
         .regex_replace('.*seclabel u:r:batterysecret:s0\n', ''),
+    'vendor/etc/init/vendor.xiaomi.hardware.citsensorservice@1.1-service.rc': blob_fixup()
+        .regex_replace('input', 'input wakelock'),
     'vendor/etc/libnfc-nci.conf': blob_fixup()
         .add_line_if_missing('LEGACY_MIFARE_READER=1'),
     'vendor/lib/libaudiocloudctrl.so': blob_fixup()
