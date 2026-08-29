@@ -390,11 +390,13 @@ vendor/etc/miLut_13.txt
 vendor/etc/miLut_14.txt
 vendor/etc/miLutInfo.txt
 
+# Display Feature - from alioth MIUI V14.0.5.0.TKHCNXM
+vendor/lib64/hw/displayfeature.default.so|36818b6a826d835415b5ec2cf3e5cff6994837d7
+
 # Display Feature
 vendor/bin/displayfeature
 vendor/bin/hw/vendor.xiaomi.hardware.displayfeature@1.0-service
 vendor/etc/init/vendor.xiaomi.hardware.displayfeature@1.0-service.rc
-vendor/lib64/hw/displayfeature.default.so
 vendor/lib64/hw/vendor.xiaomi.hardware.displayfeature@1.0-impl.so
 vendor/lib64/libclient2slpi.notifier.so
 vendor/lib64/libdisplayfeature.so
