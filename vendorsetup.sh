@@ -14,7 +14,7 @@ fi
 
 # Clone vendor_xiaomi_sm8250-common
 if [ ! -d "vendor/xiaomi/sm8250-common" ]; then
-    git clone https://github.com/PixelEssence/vendor_xiaomi_sm8250-common.git vendor/xiaomi/sm8250-common
+    git clone -b clover-17 https://github.com/PixelEssence/vendor_xiaomi_sm8250-common.git vendor/xiaomi/sm8250-common
 fi
 
 # Clone hardware_dolby
@@ -39,5 +39,5 @@ fi
 
 # Clone device/xiaomi/camera
 if [ ! -d "device/xiaomi/camera" ]; then
-    git clone https://github.com/PocoF3Releases/device_xiaomi_camera device/xiaomi/camera -b aosp-16 --depth 1
+    git clone https://github.com/PixelEssence/android_device_xiaomo_camera.git device/xiaomi/camera -b aosp-17 --depth 1
 fi
