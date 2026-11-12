@@ -42,6 +42,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     ApertureOverlayDevice \
     FrameworkResOverlayDevice \
+    FrameworkResOverlayDeviceHaptics \
     LineageDialerOverlayDevice \
     LineageSettingsOverlayDevice \
     LineageSystemUIOverlayDevice \
