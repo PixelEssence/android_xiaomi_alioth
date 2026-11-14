@@ -51,7 +51,6 @@ PRODUCT_PACKAGES += \
     LineageSettingsOverlayDevice \
     LineageSystemUIOverlayDevice \
     SettingsOverlayDevice \
-    CustomSystemUIOverlayDevice \
     SystemUIOverlayDevice
 
 # RRO Overlays
