@@ -19,6 +19,7 @@ LOCAL_OPTIONAL_USES_LIBRARIES := \
 
 LOCAL_STATIC_ANDROID_LIBRARIES := \
     androidx.core_core \
+    androidx.fragment_fragment \
     androidx.preference_preference
 
 LOCAL_RESOURCE_DIR := \

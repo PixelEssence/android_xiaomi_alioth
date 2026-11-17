@@ -37,7 +37,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, Intent intent) {
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+        if (intent != null && Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             //just check on boot
             boolean isEnable = context.getSharedPreferences(PocketPreferenceFragment.BATTERY_POCKET_MODE, Context.MODE_PRIVATE)
                     .getBoolean("enable", false);

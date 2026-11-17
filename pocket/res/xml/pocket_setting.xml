@@ -33,7 +33,7 @@
         android:layout="@layout/pocketmode_illustration"
         android:selectable="false" />
 
-    <SwitchPreference
+    <SwitchPreferenceCompat
         android:key="b_pocketmode_sw_pref"
         android:title="@string/pocketmode_title" />
 

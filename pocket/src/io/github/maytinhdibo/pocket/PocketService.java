@@ -37,6 +37,7 @@ import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import io.github.maytinhdibo.pocket.receiver.PhoneStateReceiver;
@@ -52,6 +53,7 @@ public class PocketService extends Service {
     private int lastAction = -1;
     private static long nextAlarm = -1;
     private boolean isSensorRunning = false;
+    private boolean isScreenReceiverRegistered = false;
 
     SensorManager sensorManager;
     Sensor proximitySensor;
@@ -64,27 +66,65 @@ public class PocketService extends Service {
     public void onCreate() {
         if (DEBUG) Log.d(TAG, "Creating service");
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        if (sensorManager == null) {
+            Log.e(TAG, "Sensor service unavailable; stopping Pocket Mode");
+            stopSelf();
+            return;
+        }
+
         proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        if (proximitySensor == null) {
+            Log.w(TAG, "No proximity sensor; stopping Pocket Mode");
+            stopSelf();
+            return;
+        }
 
         mContext = this;
+        syncCallState();
+        updateNextAlarm();
 
         IntentFilter screenStateFilter = new IntentFilter();
         screenStateFilter.addAction(Intent.ACTION_SCREEN_ON);
         screenStateFilter.addAction(Intent.ACTION_SCREEN_OFF);
         screenStateFilter.addAction(Intent.ACTION_USER_PRESENT);
-        registerReceiver(mScreenStateReceiver, screenStateFilter);
+        registerReceiver(mScreenStateReceiver, screenStateFilter, Context.RECEIVER_NOT_EXPORTED);
+        isScreenReceiverRegistered = true;
+
+        // A sticky service restart may happen while the display is already on.
+        PowerManager powerManager = getSystemService(PowerManager.class);
+        android.app.KeyguardManager keyguardManager = getSystemService(android.app.KeyguardManager.class);
+        if (powerManager != null && powerManager.isInteractive()
+                && keyguardManager != null && keyguardManager.isKeyguardLocked()) {
+            enableSensor();
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (DEBUG) Log.d(TAG, "Starting service");
+        if (proximitySensor == null) {
+            stopSelf(startId);
+            return START_NOT_STICKY;
+        }
+
+        boolean enabled = getSharedPreferences(
+                PocketPreferenceFragment.BATTERY_POCKET_MODE, MODE_PRIVATE)
+                .getBoolean("enable", false);
+        if (!enabled) {
+            stopSelf(startId);
+            return START_NOT_STICKY;
+        }
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         if (DEBUG) Log.d(TAG, "Destroying service");
-        this.unregisterReceiver(mScreenStateReceiver);
+        disableSensor();
+        if (isScreenReceiverRegistered) {
+            unregisterReceiver(mScreenStateReceiver);
+            isScreenReceiverRegistered = false;
+        }
         super.onDestroy();
     }
 
@@ -93,40 +133,67 @@ public class PocketService extends Service {
         return null;
     }
 
+    private void updateNextAlarm() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        try {
+            AlarmManager.AlarmClockInfo alarmClockInfo =
+                    alarmManager != null ? alarmManager.getNextAlarmClock() : null;
+            nextAlarm = alarmClockInfo != null ? alarmClockInfo.getTriggerTime() : -1;
+        } catch (RuntimeException e) {
+            Log.w(TAG, "Unable to read next alarm", e);
+            nextAlarm = -1;
+        }
+    }
+
+    private void syncCallState() {
+        TelephonyManager telephonyManager = getSystemService(TelephonyManager.class);
+        if (telephonyManager == null) return;
+
+        try {
+            PhoneStateReceiver.CUR_STATE =
+                    telephonyManager.getCallState() == TelephonyManager.CALL_STATE_IDLE
+                            ? PhoneStateReceiver.IDLE : PhoneStateReceiver.IN_CALL;
+        } catch (SecurityException e) {
+            Log.w(TAG, "Unable to read current call state", e);
+        }
+    }
+
     private void disableSensor() {
         if (!isSensorRunning) return;
         if (DEBUG) Log.d(TAG, "Disable proximity sensor");
-        sensorManager.unregisterListener(proximitySensorEventListener, proximitySensor);
+        if (sensorManager != null && proximitySensor != null) {
+            sensorManager.unregisterListener(proximitySensorEventListener, proximitySensor);
+        }
         //mark first sensor update after disable
         isFirstChange = true;
         isSensorRunning = false;
     }
 
     private void enableSensor() {
+        if (isSensorRunning || sensorManager == null || proximitySensor == null) return;
         if (DEBUG) Log.d(TAG, "Enable proximity sensor");
-        sensorManager.registerListener(proximitySensorEventListener,
+        isSensorRunning = sensorManager.registerListener(proximitySensorEventListener,
                 proximitySensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
-        isSensorRunning = true;
+        if (!isSensorRunning) {
+            Log.w(TAG, "Failed to register proximity sensor listener");
+        }
     }
 
     private BroadcastReceiver mScreenStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+            final String action = intent != null ? intent.getAction() : null;
+            if (Intent.ACTION_SCREEN_ON.equals(action)) {
                 if (lastAction != EVENT_UNLOCK) enableSensor();
                 lastAction = EVENT_TURN_ON_SCREEN;
-            } else if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+            } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                 disableSensor();
 
-                //save alarm after turn off screen
-                AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                AlarmManager.AlarmClockInfo alarmClockInfo = alarmManager.getNextAlarmClock();
-                if (alarmClockInfo != null) nextAlarm = alarmClockInfo.getTriggerTime();
-                else nextAlarm = -1;
-
+                // Refresh the next alarm time before the next screen-on event.
+                updateNextAlarm();
                 lastAction = EVENT_TURN_OFF_SCREEN;
-            } else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
+            } else if (Intent.ACTION_USER_PRESENT.equals(action)) {
                 //disable when unlocked
                 disableSensor();
                 lastAction = EVENT_UNLOCK;
@@ -144,7 +211,8 @@ public class PocketService extends Service {
         public void onSensorChanged(SensorEvent event) {
             //check if the sensor type is proximity sensor.
             if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
-                if (event.values[0] == 0) {
+                if (event.values != null && event.values.length > 0
+                        && event.values[0] < proximitySensor.getMaximumRange()) {
                     long timestamp = System.currentTimeMillis();
                     if (PhoneStateReceiver.CUR_STATE == PhoneStateReceiver.IDLE
                             && (nextAlarm == -1 || timestamp - nextAlarm > 60000)) {

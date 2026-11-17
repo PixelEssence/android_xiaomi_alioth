@@ -24,58 +24,53 @@
 
 package io.github.maytinhdibo.pocket;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceFragment;
-import androidx.preference.SwitchPreference;
-import android.app.ActionBar;
-import android.app.Activity;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreferenceCompat;
 
-public class PocketPreferenceFragment extends PreferenceFragment
+public class PocketPreferenceFragment extends PreferenceFragmentCompat
         implements Preference.OnPreferenceChangeListener {
     private static final String TAG = "PocketMode";
 
     public static final String BATTERY_POCKET_MODE = "b_pocketmode_sw_pref";
-    private SwitchPreference modeSwitch;
+    private SwitchPreferenceCompat modeSwitch;
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @SuppressLint("ResourceType")
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        addPreferencesFromResource(R.layout.pocket_setting);
-        modeSwitch = (SwitchPreference) findPreference(BATTERY_POCKET_MODE);
+        addPreferencesFromResource(R.xml.pocket_setting);
+        modeSwitch = findPreference(BATTERY_POCKET_MODE);
+        if (modeSwitch == null) {
+            Log.e(TAG, "Pocket Mode preference is missing");
+            return;
+        }
+
+        // Keep the legacy preference file shared with BootCompletedReceiver.
+        modeSwitch.setPersistent(false);
+        modeSwitch.setChecked(requireContext()
+                .getSharedPreferences(BATTERY_POCKET_MODE, Activity.MODE_PRIVATE)
+                .getBoolean("enable", false));
         modeSwitch.setOnPreferenceChangeListener(this);
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        Log.d(TAG, newValue.toString());
-        boolean value = (Boolean) newValue;
+        if (!BATTERY_POCKET_MODE.equals(preference.getKey()) || !(newValue instanceof Boolean)) {
+            return false;
+        }
 
-        if (preference.getKey().equals(BATTERY_POCKET_MODE)) {
-            SharedPreferences.Editor editor = getActivity().getSharedPreferences(BATTERY_POCKET_MODE, Activity.MODE_PRIVATE)
-                    .edit();
-            editor.putBoolean("enable", value);
-            editor.commit();
+        final boolean enabled = (Boolean) newValue;
+        requireContext().getSharedPreferences(BATTERY_POCKET_MODE, Activity.MODE_PRIVATE)
+                .edit()
+                .putBoolean("enable", enabled)
+                .apply();
 
-            if (value) {
-                PocketUtils.startService(getContext());
-            } else {
-                PocketUtils.stopService(getContext());
-            }
+        if (enabled) {
+            PocketUtils.startService(requireContext());
+        } else {
+            PocketUtils.stopService(requireContext());
         }
         return true;
     }

@@ -40,7 +40,9 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, Intent intent) {
+        if (intent == null) return;
         String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+        if (state == null) return;
         Log.d(TAG, state);
 
         if (state.equals(TelephonyManager.EXTRA_STATE_RINGING)

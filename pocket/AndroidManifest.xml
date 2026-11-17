@@ -38,11 +38,11 @@
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
-    <protected-broadcast android:name="com.android.systemui.doze.pulse" />
+    <uses-feature
+        android:name="android.hardware.sensor.proximity"
+        android:required="false" />
 
-    <uses-sdk
-        android:minSdkVersion="24"
-        android:targetSdkVersion="24" />
+    <protected-broadcast android:name="com.android.systemui.doze.pulse" />
 
     <application
         android:label="@string/pocketmode_short_title"
@@ -53,14 +53,18 @@
             android:authorities="${applicationId}.androidx-startup"
             tools:replace="android:authorities"/>
 
-        <receiver android:name=".receiver.BootCompletedReceiver">
+        <receiver
+            android:name=".receiver.BootCompletedReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".receiver.PhoneStateReceiver">
+        <receiver
+            android:name=".receiver.PhoneStateReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -69,11 +73,12 @@
 
         <service
             android:name=".PocketService"
-            android:permission="PocketService"></service>
+            android:exported="false" />
 
         <!-- use theme as setting remove android:theme if not need it -->
         <activity
             android:name=".PocketPreferenceActivity"
+            android:exported="true"
             android:label="@string/pocketmode_short_title"
             android:theme="@style/Theme.SubSettingsBase">
             <intent-filter>

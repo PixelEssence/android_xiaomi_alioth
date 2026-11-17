@@ -32,19 +32,21 @@ public class PocketUtils {
     private static final String TAG = "PocketMode";
 
     public static void startService(Context context) {
+        if (context == null) return;
         try {
             context.startService(new Intent(context, PocketService.class));
-        } catch (Exception e) {
-            Log.d(TAG, e.getStackTrace().toString());
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to start Pocket Mode service", e);
         }
 
     }
 
     public static void stopService(Context context) {
+        if (context == null) return;
         try {
             context.stopService(new Intent(context, PocketService.class));
-        } catch (Exception e) {
-            Log.d(TAG, e.getStackTrace().toString());
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to stop Pocket Mode service", e);
         }
     }
 }
