@@ -25,6 +25,7 @@
 package io.github.maytinhdibo.pocket;
 
 import android.app.AlarmManager;
+import android.app.KeyguardManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -54,6 +55,7 @@ public class PocketService extends Service {
     private static long nextAlarm = -1;
     private boolean isSensorRunning = false;
     private boolean isScreenReceiverRegistered = false;
+    private KeyguardManager keyguardManager;
 
     SensorManager sensorManager;
     Sensor proximitySensor;
@@ -92,7 +94,7 @@ public class PocketService extends Service {
 
         // A sticky service restart may happen while the display is already on.
         PowerManager powerManager = getSystemService(PowerManager.class);
-        android.app.KeyguardManager keyguardManager = getSystemService(android.app.KeyguardManager.class);
+        keyguardManager = getSystemService(KeyguardManager.class);
         if (powerManager != null && powerManager.isInteractive()
                 && keyguardManager != null && keyguardManager.isKeyguardLocked()) {
             enableSensor();
@@ -211,19 +213,31 @@ public class PocketService extends Service {
         public void onSensorChanged(SensorEvent event) {
             //check if the sensor type is proximity sensor.
             if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+                // Only a fully covered sensor means "near". Using
+                // "< getMaximumRange()" also matches a hand passing close to the
+                // sensor and turns the screen off spuriously while handling the
+                // device.
                 if (event.values != null && event.values.length > 0
-                        && event.values[0] < proximitySensor.getMaximumRange()) {
-                    long timestamp = System.currentTimeMillis();
-                    if (PhoneStateReceiver.CUR_STATE == PhoneStateReceiver.IDLE
-                            && (nextAlarm == -1 || timestamp - nextAlarm > 60000)) {
-                        //stop block turn on after 15 seconds
-                        if (!(isFirstChange && (System.currentTimeMillis() - lastBlock < 15000 && lastBlock != -1))) {
-                            if (DEBUG) Log.d(TAG, "NEAR, disable sensor and turn screen off");
-                            disableSensor();
-                            PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
-                            if (pm != null) {
-                                pm.goToSleep(SystemClock.uptimeMillis());
-                                lastBlock = System.currentTimeMillis();
+                        && event.values[0] == 0) {
+                    if (keyguardManager != null && !keyguardManager.isKeyguardLocked()) {
+                        // USER_PRESENT can be missed after a sticky service
+                        // restart; never turn the screen off while unlocked.
+                        if (DEBUG) Log.d(TAG, "NEAR while unlocked, disabling sensor");
+                        disableSensor();
+                        lastAction = EVENT_UNLOCK;
+                    } else {
+                        long timestamp = System.currentTimeMillis();
+                        if (PhoneStateReceiver.CUR_STATE == PhoneStateReceiver.IDLE
+                                && (nextAlarm == -1 || timestamp - nextAlarm > 60000)) {
+                            //stop block turn on after 15 seconds
+                            if (!(isFirstChange && (System.currentTimeMillis() - lastBlock < 15000 && lastBlock != -1))) {
+                                if (DEBUG) Log.d(TAG, "NEAR, disable sensor and turn screen off");
+                                disableSensor();
+                                PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
+                                if (pm != null) {
+                                    pm.goToSleep(SystemClock.uptimeMillis());
+                                    lastBlock = System.currentTimeMillis();
+                                }
                             }
                         }
                     }
