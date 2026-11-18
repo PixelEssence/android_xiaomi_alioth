@@ -83,6 +83,10 @@ public class PocketService extends Service {
         syncCallState();
         updateNextAlarm();
 
+        // Grab the keyguard manager before registering the receiver so the
+        // receiver never observes a null reference.
+        keyguardManager = getSystemService(KeyguardManager.class);
+
         IntentFilter screenStateFilter = new IntentFilter();
         screenStateFilter.addAction(Intent.ACTION_SCREEN_ON);
         screenStateFilter.addAction(Intent.ACTION_SCREEN_OFF);
@@ -92,7 +96,6 @@ public class PocketService extends Service {
 
         // A sticky service restart may happen while the display is already on.
         PowerManager powerManager = getSystemService(PowerManager.class);
-        keyguardManager = getSystemService(KeyguardManager.class);
         if (powerManager != null && powerManager.isInteractive()
                 && keyguardManager != null && keyguardManager.isKeyguardLocked()) {
             enableSensor();
