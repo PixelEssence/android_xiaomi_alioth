@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="appname">Battery-friendly pocket mode</string>
     <string name="pocketmode_title">Battery-friendly pocket mode</string>
     <string name="pocketmode_short_title">Pocket mode</string>
     <string name="pocketmode_summary">Battery-friendly pocket mode</string>

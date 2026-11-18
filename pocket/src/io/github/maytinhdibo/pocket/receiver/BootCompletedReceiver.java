@@ -33,8 +33,6 @@ import io.github.maytinhdibo.pocket.PocketPreferenceFragment;
 
 public class BootCompletedReceiver extends BroadcastReceiver {
 
-    private static final String TAG = "PocketMode";
-
     @Override
     public void onReceive(final Context context, Intent intent) {
         if (intent != null && Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {

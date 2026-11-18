@@ -59,7 +59,6 @@ public class PocketService extends Service {
 
     SensorManager sensorManager;
     Sensor proximitySensor;
-    Context mContext;
 
     private long lastBlock = -1;
     private boolean isFirstChange = false;
@@ -81,7 +80,6 @@ public class PocketService extends Service {
             return;
         }
 
-        mContext = this;
         syncCallState();
         updateNextAlarm();
 
@@ -187,7 +185,10 @@ public class PocketService extends Service {
         public void onReceive(Context context, Intent intent) {
             final String action = intent != null ? intent.getAction() : null;
             if (Intent.ACTION_SCREEN_ON.equals(action)) {
-                if (lastAction != EVENT_UNLOCK) enableSensor();
+                if (lastAction != EVENT_UNLOCK
+                        && (keyguardManager == null || keyguardManager.isKeyguardLocked())) {
+                    enableSensor();
+                }
                 lastAction = EVENT_TURN_ON_SCREEN;
             } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                 disableSensor();
@@ -228,12 +229,12 @@ public class PocketService extends Service {
                     } else {
                         long timestamp = System.currentTimeMillis();
                         if (PhoneStateReceiver.CUR_STATE == PhoneStateReceiver.IDLE
-                                && (nextAlarm == -1 || timestamp - nextAlarm > 60000)) {
+                                && (nextAlarm == -1 || Math.abs(timestamp - nextAlarm) > 60000)) {
                             //stop block turn on after 15 seconds
                             if (!(isFirstChange && (System.currentTimeMillis() - lastBlock < 15000 && lastBlock != -1))) {
                                 if (DEBUG) Log.d(TAG, "NEAR, disable sensor and turn screen off");
                                 disableSensor();
-                                PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
+                                PowerManager pm = getSystemService(PowerManager.class);
                                 if (pm != null) {
                                     pm.goToSleep(SystemClock.uptimeMillis());
                                     lastBlock = System.currentTimeMillis();
