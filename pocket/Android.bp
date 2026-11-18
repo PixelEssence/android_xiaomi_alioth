@@ -1,0 +1,54 @@
+package {
+    default_applicable_licenses: ["device_xiaomi_alioth_pocket_license"],
+}
+
+license {
+    name: "device_xiaomi_alioth_pocket_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+android_app {
+    name: "PocketMode",
+
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+
+    certificate: "platform",
+    platform_apis: true,
+    system_ext_specific: true,
+    privileged: true,
+
+    optional_uses_libs: [
+        "androidx.window.extensions",
+        "androidx.window.sidecar",
+    ],
+
+    static_libs: [
+        "org.lineageos.settings.resources",
+        "SettingsLib",
+        "androidx.core_core",
+        "androidx.fragment_fragment",
+        "androidx.preference_preference",
+    ],
+
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+    },
+
+    required: [
+        "privapp-permissions-pocketmode.xml",
+    ],
+}
+
+prebuilt_etc {
+    name: "privapp-permissions-pocketmode.xml",
+    src: "privapp-permissions-pocketmode.xml",
+    sub_dir: "permissions",
+    system_ext_specific: true,
+}
